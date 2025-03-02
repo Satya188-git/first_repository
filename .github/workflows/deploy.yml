@@ -33,7 +33,7 @@ jobs:
       run: |
         echo "Use Pipeline Artifact and deploy to env"
 
-        if [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+        if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
 
         echo "DEV deployment is not required"
         exit 0
