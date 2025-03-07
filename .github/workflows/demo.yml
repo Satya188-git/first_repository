@@ -1,0 +1,38 @@
+name: Deploy to Dev Environment
+
+name: Deploy to Environments
+
+on:
+  push:
+    branches:
+      - main
+      - dev
+      - qa
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Set environment
+        id: setenv
+        run: |
+          if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
+            echo "environment=dev" >> $GITHUB_ENV
+          elif [[ "${{ github.ref }}" == "refs/heads/qa" ]]; then
+            echo "environment=qa" >> $GITHUB_ENV
+          elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+            echo "environment=prod" >> $GITHUB_ENV
+          fi
+
+      - name: Deploy to Quicksight
+        run: |
+          echo "Use Pipeline Artifact and deploy to env"
+
+          if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
+            echo "DEV deployment is not required"
+            exit 0
+          fi
+
+          export AWS_ACCESS_KEY_ID=${{ secrets.access_keyid }}
+          export AWS_SECRET_ACCESS_KEY=${{ secrets.secret_access_keyid }}  
+          echo "${{ secrets.access_keyid }}"
