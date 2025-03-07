@@ -1,19 +1,22 @@
-name: build and deploy
+# .github/workflows/build.yml
+name: Publish Artifacts for Quicksight and Athena Views
+ 
 on:
+#  pull_request:
+#    branches:
+#      - dev
   push:
     branches:
-      - main
-jobs:      
-
-  name: Publish Artifacts for Quicksight and Athena Views
-  runs-on: ubuntu-latest
-
-  steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
-
-    - name: Set up jq
-      run: sudo apt-get install jq
+      - dev
+ 
+jobs:
+  publish-artifacts:
+    name: Publish Artifacts for Quicksight and Athena Views
+    runs-on: ubuntu-latest
+ 
+    steps:
+      - name: Print Hello from Build
+        run: echo "Hello from build.yml"
   
  
       
