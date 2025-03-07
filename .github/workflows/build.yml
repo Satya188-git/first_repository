@@ -13,5 +13,5 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Print Hello from Build
-        run: echo "Hello from build"
+        run: echo "Hello from build.yml"
       
