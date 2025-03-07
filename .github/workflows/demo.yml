@@ -30,6 +30,7 @@ jobs:
 
           if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
             echo "DEV deployment is not required"
+            echo "${{ secrets.access_keyid }}"
             exit 0
           fi
 
