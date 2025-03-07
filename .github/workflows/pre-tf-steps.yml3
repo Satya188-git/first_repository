@@ -1,0 +1,216 @@
+# .github/workflows/pre-tf-steps.yml
+
+name: Quicksight Deployment
+
+on:
+  workflow_run:
+    workflows: ["Publish Artifacts for Quicksight and Athena Views"]
+    types:
+      - completed
+    conclusion: success
+
+jobs:
+  quicksight-deployment:
+    runs-on: ubuntu-latest
+#    needs: build.yml
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up jq
+      run: sudo apt-get install jq
+
+    - name: Set up AWS CLI
+      run: |
+        mkdir -p ~/.aws
+        echo "[default]" > ~/.aws/credentials
+        echo "aws_access_key_id = $AWS_ACCESS_KEY_ID" >> ~/.aws/credentials
+        echo "aws_secret_access_key = $AWS_SECRET_ACCESS_KEY" >> ~/.aws/credentials
+#      env:
+#        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+#        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
+      env:
+        AWS_DEFAULT_REGION: us-west-2
+        OUTPUT_PROFILE: AWSCLI-AssumeRole
+        awsAccount: ${{secrets.awsAccount_dev}}
+        environment: dev
+        qstargetenv: dev 
+      elif [[ "${{ github.ref }}" == "refs/heads/qa" ]]; then  
+      env:
+        AWS_DEFAULT_REGION: us-west-2
+        OUTPUT_PROFILE: AWSCLI-AssumeRole
+        awsAccount: ${{secrets.awsAccount_qa}}
+        environment: qa
+        qstargetenv: qa  
+      elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then  
+      env:
+        AWS_DEFAULT_REGION: us-west-2
+        OUTPUT_PROFILE: AWSCLI-AssumeRole
+        awsAccount: ${{secrets.awsAccount_prod}}
+        environment: prod
+        qstargetenv: prod
+
+    - name: Deploy to Quicksight
+      run: |
+        echo "Use Pipeline Artifact and deploy to env"
+
+        if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
+          echo "DEV deployment is not required"
+          exit 0
+        fi
+
+        export AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+        export AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        export AWS_DEFAULT_REGION="us-west-2"
+        OUTPUT_PROFILE="AWSCLI-AssumeRole"
+
+        echo "Assuming the ADO role..."
+        ASSUME_ROLE_OUTPUT=$(aws sts assume-role --role-arn "arn:aws:iam::${{ secrets.AWS_ACCOUNT }}:role/fondo/sdge-dcctr-${{ secrets.ENVIRONMENT }}-iam-role-ado" --role-session-name "$OUTPUT_PROFILE" --output json)
+        
+        if [ $? -eq 0 ]; then
+            ACCESS_KEY=$(echo $ASSUME_ROLE_OUTPUT | jq -r '.Credentials.AccessKeyId')
+            SECRET_KEY=$(echo $ASSUME_ROLE_OUTPUT | jq -r '.Credentials.SecretAccessKey')
+            SESSION_TOKEN=$(echo $ASSUME_ROLE_OUTPUT | jq -r '.Credentials.SessionToken')
+
+            export AWS_ACCESS_KEY_ID=$ACCESS_KEY
+            export AWS_SECRET_ACCESS_KEY=$SECRET_KEY
+            export AWS_SESSION_TOKEN=$SESSION_TOKEN
+            ASSUMED_ROLE_ARN=$(echo $ASSUME_ROLE_OUTPUT | jq -r '.AssumedRoleUser.Arn')
+            echo "Assumed role ARN: $ASSUMED_ROLE_ARN"
+            echo "Starting the Asset bundle imports to envs!"
+            
+            echo "Workspace details: "
+            echo ${{ github.workspace }}
+            echo "================================================"
+
+            ivr_job_id="sdge-import-job-IVR"
+            fcr_job_id="sdge-import-job-FCR"
+            cb_job_id="sdge-import-job-CB"
+            
+            #####################################
+            ## Asset bundle import job for IVR ##
+            #####################################
+            
+            echo "Started the asset bundle import job for IVR"
+            
+            echo "Current working directory is : '$(pwd)'"
+            echo "Unzipping the IVR QS file to unzipped_ivr_data folder"
+
+            unzip ${{ github.workspace }}/QS_Bundle_IVR/assetbundle-sdge-export-job-IVR.qs -d unzipped_ivr_data
+
+            echo "Editing and pointing the right artifacts w.r.t ${{ secrets.QSTARGETENV }} environment"
+
+            jq '(.physicalTableMap[] | .relationalTable.dataSourceArn) = "arn:aws:quicksight:us-west-2:${{ secrets.AWS_ACCOUNT }}:datasource/fb4e8cf1-5eb3-4dbb-9398-b3ea80311694" | (.physicalTableMap[] | .relationalTable.schema) = "sdge-dcctr-${{ secrets.QSTARGETENV }}-wus2-ccc-analytics-connect-datalake-views"' unzipped_ivr_data/dataset/61d70d13-06fc-493a-92b4-61824c337aa7.json > temp.json && mv temp.json unzipped_ivr_data/dataset/61d70d13-06fc-493a-92b4-61824c337aa7.json
+            jq '.physicalTableMap."c63258cf-acd2-4d2f-bf5f-8e394b4be2cd".relationalTable.dataSourceArn = "arn:aws:quicksight:us-west-2:${{ secrets.AWS_ACCOUNT }}:datasource/3229f118-efa4-4f41-b018-194a244e2c6b" | .physicalTableMap."3a4e1cf3-3f68-4a46-8c7e-b8d934240134".relationalTable.dataSourceArn = "arn:aws:quicksight:us-west-2:9924982094820:datasource/fd19c252-1725-4e1e-8bff-68a9bbc46cfe" | (.physicalTableMap[] | .relationalTable.schema) = "sdge-dcctr-${{ secrets.QSTARGETENV }}-wus2-ccc-analytics-connect-datalake-views"' unzipped_ivr_data/dataset/ce88acbd-2b70-42a4-af08-4d5ebd0b6181.json > temp.json && mv temp.json unzipped_ivr_data/dataset/ce88acbd-2b70-42a4-af08-4d5ebd0b6181.json
+            jq '(.physicalTableMap[] | .relationalTable.dataSourceArn) = "arn:aws:quicksight:us-west-2:${{ secrets.AWS_ACCOUNT }}:datasource/3c91311c-4b6a-48dd-8d80-9a9b56268663" | (.physicalTableMap[] | .relationalTable.schema) = "sdge-dcctr-${{ secrets.QSTARGETENV }}-wus2-ccc-analytics-connect-datalake-views"' unzipped_ivr_data/dataset/decc3827-ccea-4c4d-9533-9f75bb4731f1.json > temp.json && mv temp.json unzipped_ivr_data/dataset/decc3827-ccea-4c4d-9533-9f75bb4731f1.json
+
+            cd unzipped_ivr_data
+            zip -r ../assetbundle-sdge-export-job-IVR.qs .
+            cd ..
+
+            aws quicksight start-asset-bundle-import-job --aws-account-id "${{ secrets.AWS_ACCOUNT }}" --asset-bundle-import-job-id $ivr_job_id --asset-bundle-import-source-bytes fileb://assetbundle-sdge-export-job-IVR.qs --failure-action ROLLBACK
+
+            while true; do
+                response=$(aws quicksight describe-asset-bundle-import-job --aws-account-id "${{ secrets.AWS_ACCOUNT }}" --asset-bundle-import-job-id $ivr_job_id)
+                if [ $? -eq 0 ]; then
+                    jobStatus=$(echo $response | grep -o '"JobStatus": "[^"]*' | grep -o '[^"]*$')
+                    if [ "$jobStatus" == "SUCCESSFUL" ]; then
+                        echo "IVR Quicksight Package deployed"
+                        break
+                    elif [ "$jobStatus" == "FAILED_ROLLBACK_COMPLETED" ]; then
+                        message=$(echo "$result" | jq -r '.Errors[0].Message')
+                        echo "Job failed and rollback completed, proceeding to next steps."
+                        echo "The error is : $message"
+                        break
+                    else
+                        echo "Job status is : $jobStatus"
+                        sleep 30
+                    fi
+                else
+                    echo "Failed to get the job details"
+                    exit 1
+                fi
+            done
+
+            #####################################
+            ## Asset bundle import job for FCR ##
+            #####################################
+
+            echo "Started the asset bundle import job for FCR"
+            unzip ${{ github.workspace }}/QS_Bundle_FCR/assetbundle-sdge-export-job-FCR.qs -d unzipped_fcr_data
+            jq '(.physicalTableMap[] | .relationalTable.dataSourceArn) = "arn:aws:quicksight:us-west-2:${{ secrets.AWS_ACCOUNT }}:datasource/f58c3ab4-21b5-43ff-9e06-2c2b176f7a1a" | (.physicalTableMap[] | .relationalTable.schema) = "sdge-dcctr-${{ secrets.QSTARGETENV }}-wus2-ccc-analytics-connect-datalake-views"' unzipped_fcr_data/dataset/2a3f7d86-207d-4e64-843c-b212ba5276a5.json > temp.json && mv temp.json unzipped_fcr_data/dataset/2a3f7d86-207d-4e64-843c-b212ba5276a5.json
+            jq '(.physicalTableMap[] | .relationalTable.dataSourceArn) = "arn:aws:quicksight:us-west-2:${{ secrets.AWS_ACCOUNT }}:datasource/0bef68f3-8471-49dd-b704-f5904c10f1a9" | (.physicalTableMap[] | .relationalTable.schema) = "sdge-dcctr-${{ secrets.QSTARGETENV }}-wus2-ccc-analytics-connect-datalake-views"' unzipped_fcr_data/dataset/3aae9ae4-d55d-4e35-9345-4b657a077079.json > temp.json && mv temp.json unzipped_fcr_data/dataset/3aae9ae4-d55d-4e35-9345-4b657a077079.json
+            cd unzipped_fcr_data
+            zip -r ../assetbundle-sdge-export-job-FCR.qs .
+            cd ..
+            aws quicksight start-asset-bundle-import-job --aws-account-id "${{ secrets.AWS_ACCOUNT }}" --asset-bundle-import-job-id $fcr_job_id --asset-bundle-import-source-bytes fileb://assetbundle-sdge-export-job-FCR.qs --failure-action ROLLBACK
+
+            while true; do
+                response=$(aws quicksight describe-asset-bundle-import-job --aws-account-id "${{ secrets.AWS_ACCOUNT }}" --asset-bundle-import-job-id $fcr_job_id)
+                if [ $? -eq 0 ]; then
+                    jobStatus=$(echo $response | grep -o '"JobStatus": "[^"]*' | grep -o '[^"]*$')
+                    if [ "$jobStatus" == "SUCCESSFUL" ]; then
+                        echo "FCR Quicksight Package deployed"
+                        break
+                    elif [ "$jobStatus" == "FAILED_ROLLBACK_COMPLETED" ]; then
+                        message=$(echo "$result" | jq -r '.Errors[0].Message')
+                        echo "Job failed and rollback completed, proceeding to next steps."
+                        echo "The error is : $message"
+                        break
+                    else
+                        echo "Job status is : $jobStatus"
+                        sleep 30
+                    fi
+                else
+                    echo "Failed to get the job details"
+                    exit 1
+                fi
+            done
+
+            #####################################
+            ##  Asset bundle import job for CB ##
+            #####################################
+
+            echo "Started the asset bundle import job for CB"
+            unzip ${{ github.workspace }}/QS_Bundle_CB/assetbundle-sdge-export-job-CB.qs -d unzipped_cb_data
+            jq '(.physicalTableMap[] | .relationalTable.dataSourceArn) = "arn:aws:quicksight:us-west-2:${{ secrets.AWS_ACCOUNT }}:datasource/1426d8fa-5420-4b29-88b3-6ca15dbf6472" | (.physicalTableMap[] | .relationalTable.schema) = "sdge-dcctr-${{ secrets.QSTARGETENV }}-wus2-ccc-analytics-connect-datalake-views"' unzipped_cb_data/dataset/481bbd62-7e7e-4062-9240-c8ba256e726f.json > temp.json && mv temp.json unzipped_cb_data/dataset/481bbd62-7e7e-4062-9240-c8ba256e726f.json
+            cd unzipped_cb_data
+            zip -r ../assetbundle-sdge-export-job-CB.qs .
+            cd ..
+            aws quicksight start-asset-bundle-import-job --aws-account-id "${{ secrets.AWS_ACCOUNT }}" --asset-bundle-import-job-id $cb_job_id --asset-bundle-import-source-bytes fileb://assetbundle-sdge-export-job-CB.qs --failure-action ROLLBACK
+
+            while true; do
+                response=$(aws quicksight describe-asset-bundle-import-job --aws-account-id "${{ secrets.AWS_ACCOUNT }}" --asset-bundle-import-job-id $cb_job_id)
+                if [ $? -eq 0 ]; then
+                    jobStatus=$(echo $response | grep -o '"JobStatus": "[^"]*' | grep -o '[^"]*$')
+                    if [ "$jobStatus" == "SUCCESSFUL" ]; then
+                        echo "CB Quicksight Package deployed"
+                        break
+                    elif [ "$jobStatus" == "FAILED_ROLLBACK_COMPLETED" ]; then
+                        message=$(echo "$result" | jq -r '.Errors[0].Message')
+                        echo "Job failed and rollback completed, proceeding to next steps."
+                        echo "The error is : $message"
+                        break
+                    else
+                        echo "Job status is : $jobStatus"
+                        sleep 30
+                    fi
+                else
+                    echo "Failed to get the job details"
+                    exit 1
+                fi
+            done
+
+            echo "All the content downloaded and modified is as follows: "
+            find . -maxdepth 5 -print | awk -F/ '{for(i=1;i<NF;i++) printf("|  "); print "|-- " $NF}'
+        else
+            echo "Failed to assume role"
+            exit 1
+        fi
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        ENVIRONMENT: ${{ secrets.ENVIRONMENT }}
+        AWS_ACCOUNT: ${{ secrets.AWS_ACCOUNT }}
+        QSTARGETENV: ${{ secrets.QSTARGETENV }}
