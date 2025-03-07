@@ -1,0 +1,18 @@
+# .github/workflows/deploy-to-env.yml
+name: Deploy to Environment
+ 
+on:
+  workflow_run:
+    workflows: ["Quicksight Deployment"]
+    types:
+      - completed
+    conclusion: success
+ 
+jobs:
+  deploy_to_environment:
+    name: Deploy to Environment
+    runs-on: ubuntu-latest
+ 
+    steps:
+      - name: Print Hello from Deploy
+        run: echo "Hello from deploy-to-env.yml"
