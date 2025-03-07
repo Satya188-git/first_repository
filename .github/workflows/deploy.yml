@@ -1,12 +1,10 @@
 name: Quicksight Deployment
 
 on:
-  push:
-    branches: 
-      - main
-  pull_request:
-    branches:
-      - main
+  workflow_run:
+    workflows: ["build and deploy"]
+    types: 
+      - completed
 
 jobs:
   quicksight-deployment:
