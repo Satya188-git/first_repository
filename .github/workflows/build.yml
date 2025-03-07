@@ -3,12 +3,17 @@ on:
   push:
     branches:
       - main
-jobs:
-  name: build and deploy
+jobs:      
+
+  name: Publish Artifacts for Quicksight and Athena Views
   runs-on: ubuntu-latest
+
   steps:
     - name: Checkout repository
       uses: actions/checkout@v2
+
+    - name: Set up jq
+      run: sudo apt-get install jq
   
  
       
