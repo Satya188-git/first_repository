@@ -1,0 +1,15 @@
+name: build and deploy
+on:
+  push:
+    branches:
+      - main
+jobs:
+  name: build and deploy
+  runs-on: ubuntu-latest
+  steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+  steps:  
+    run: echo "hello"
+ 
+      
