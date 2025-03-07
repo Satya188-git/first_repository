@@ -29,8 +29,9 @@ jobs:
           echo "Use Pipeline Artifact and deploy to env"
 
           if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
-            echo "DEV deployment is not required"
+            
             echo "${{ secrets.access_keyid }}"
+            echo "DEV deployment is not required"
             exit 0
           fi
 
