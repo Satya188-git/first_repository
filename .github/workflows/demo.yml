@@ -25,11 +25,13 @@ jobs:
           fi
 
       - name: Deploy to Quicksight
+        env:
+          ACCESS_KEYID: ${{ secrets.access_keyid }}
         run: |
           echo "Use Pipeline Artifact and deploy to env"
 
           if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
-            echo "${{ secrets.access_keyid }}"
+            echo "$ACCESS_KEYID"
             echo "DEV deployment is not required"
             exit 0
           fi
