@@ -1,4 +1,4 @@
-name: reusable-workflow1
+name: build.yml
 
 on:
   workflow_call:
