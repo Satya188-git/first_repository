@@ -2,10 +2,12 @@ name: Main Workflow
 
 on:
   workflow_dispatch:
+  push:
+    branches:
+      - dev
 
 jobs:
-  build.yml
-  
+  build.yml:
     uses: Satya188-git/first_repository/.github/workflows/build.yml@dev
 
   
