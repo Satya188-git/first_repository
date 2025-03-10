@@ -3,20 +3,13 @@ name: Test Quicksight Deployment
 
 on:
   workflow_dispatch:
-  workflow_run:
-    workflows: ["Test Build Workflow"]
-    types:
-      - completed
-    conclusion: success
+  
 
 jobs:
-  reusable-call:
-   
-    uses: ./.github/workflows/build.yml
-    with:
-      message: "First call to reusable workflow"
+  
   test-quicksight-deployment:
     runs-on: ubuntu-latest
+    uses: ./.github/workflows/build.yml
     steps:
       - name: Print Debug Message
         run: echo "Workflow triggered by Test Build Workflow completion."
