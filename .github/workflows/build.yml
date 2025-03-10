@@ -1,9 +1,7 @@
 # .github/workflows/build.yml
 name: Publish Artifacts for Quicksight and Athena Views
 on:
-  pull_request:
-    branches:
-      - dev
+ 
       
   push:
     branches:
