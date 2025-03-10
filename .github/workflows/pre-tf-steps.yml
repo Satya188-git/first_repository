@@ -8,5 +8,8 @@ jobs:
     uses: Satya188-git/first_repository/.github/workflows/build.yml@dev
 
   call_workflow2:
-    needs: call_workflow1  # Ensures sequential execution
+    needs: call_workflow1  # ✅ Runs after call_workflow1 completes
     uses: Satya188-git/first_repository/.github/workflows/build.yml@dev
+    with:
+      param: ${{ needs.call_workflow1.outputs.result }}  # ✅ Fix: Pass result output
+
