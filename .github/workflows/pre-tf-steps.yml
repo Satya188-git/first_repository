@@ -9,7 +9,8 @@ jobs:
   
   test-quicksight-deployment:
     runs-on: ubuntu-latest
-    uses: ./.github/workflows/build.yml
+    
     steps:
+      uses: ./.github/workflows/build.yml
       - name: Print Debug Message
         run: echo "Workflow triggered by Test Build Workflow completion."
