@@ -1,28 +1,18 @@
-# .github/workflows/build.yml
-name: Publish Artifacts for Quicksight and Athena Views
+name: Reusable Workflow 1
+
 on:
   workflow_call:
-  workflow_dispatch:
-  pull_request:
-    branches:
-      - dev
-      - main
-      - '*'
-  push:
-    branches:
-      - dev
-      - main
-   
-      
-#  push:
-#    branches:
-#      - dev
-  
+    outputs:
+      result:
+        description: "Output from workflow 1"
+        value: ${{ jobs.example.outputs.some_output }}
+
 jobs:
-  publish-artifacts:
-    name: Publish Artifacts for Quicksight and Athena Views
+  example:
     runs-on: ubuntu-latest
+    outputs:
+      some_output: "success"
     steps:
-      - name: Print Hello from Build
-        run: echo "Hello from build"
+      - run: echo "Workflow 1 completed"
+
       
