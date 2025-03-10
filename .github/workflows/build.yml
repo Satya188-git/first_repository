@@ -2,15 +2,9 @@ name: build.yml
 
 on:
   workflow_call:
-    outputs:
-      result:
-        description: "Output from build workflow"
-        value: ${{ jobs.example.outputs.some_output }}
+    
 
-  push:
-    branches:
-      - dev
-
+ 
 jobs:
   example:
     runs-on: ubuntu-latest
