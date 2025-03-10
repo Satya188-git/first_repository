@@ -2,10 +2,7 @@ name: Reusable Workflow 1
 
 on:
   workflow_call:
-    outputs:
-      result:
-        description: "Output from workflow 1"
-        value: ${{ jobs.example.outputs.some_output }}
+    
   push:
     branches:
       - dev
