@@ -2,6 +2,9 @@
 name: Quicksight Deployment
  
 on:
+  push:
+    branches:
+      - dev
 #  workflow_run:
 #    workflows: Publish Artifacts for Quicksight and Athena Views
  #   types:
