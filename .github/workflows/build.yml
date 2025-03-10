@@ -10,9 +10,12 @@ on:
     branches:
       - dev
       - main
-      - '*' 
+   
       
-
+#  push:
+#    branches:
+#      - dev
+  
 jobs:
   publish-artifacts:
     name: Publish Artifacts for Quicksight and Athena Views

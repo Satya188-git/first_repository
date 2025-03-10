@@ -1,17 +1,20 @@
 
 
+
 name: Deploy to Environments
+
+
 
 on:
   push:
     branches:
       - main
-      - dev
-      - qa
+
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
+
     steps:
       - name: Set environment
         id: setenv
@@ -39,3 +42,25 @@ jobs:
           export AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
           export AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}  
           echo "${{ secrets.AWS_ACCESS_KEY_ID }}"
+
+    env:
+      if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
+      environment: dev
+      elif [[ "${{ github.ref }}" == "refs/heads/qa" ]]; then
+      environment: qa
+      elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+      environment: prod
+    steps:
+    - name: Deploy to Quicksight
+      run: |
+        echo "Use Pipeline Artifact and deploy to env"
+
+        if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
+          echo "DEV deployment is not required"
+          exit 0
+        fi
+
+        export AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+        export AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}  
+        echo "${{ secrets.AWS_ACCESS_KEY_ID }}"  
+
