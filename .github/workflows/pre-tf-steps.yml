@@ -5,8 +5,8 @@ on:
 
 jobs:
   call_workflow1:
-    uses: ./.github/workflows/reusable-workflow1.yml@dev
+    uses: .github/workflows/reusable-workflow1.yml@dev
 
   call_workflow2:
     needs: call_workflow1  # Ensures sequential execution
-    uses: ./.github/workflows/reusable-workflow1.yml@dev
+    uses: .github/workflows/reusable-workflow1.yml@dev
