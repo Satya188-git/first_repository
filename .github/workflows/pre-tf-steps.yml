@@ -4,7 +4,7 @@ name: Quicksight Deployment
 on:
   
   workflow_run:
-    workflows: Publish Artifacts for Quicksight and Athena Views
+    workflow: Publish Artifacts for Quicksight and Athena Views
     types:
       - completed
     conclusion: success
