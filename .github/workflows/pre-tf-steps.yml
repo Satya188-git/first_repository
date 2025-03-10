@@ -14,7 +14,7 @@ on:
 jobs:
   quicksight-deployment:
     runs-on: ubuntu-latest
-    needs: build.yml
+    needs: .github/workflows/build.yml
     steps:
       - name: Print Hello from Pre-Terraform
         run: echo "Hello from pre-tf-steps.yml"
