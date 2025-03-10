@@ -4,13 +4,10 @@ name: Quicksight Deployment
 on:
   
   workflow_run:
-    workflows: Publish Artifacts for Quicksight and Athena Views
-    types:
-      - completed
-    conclusion: success
- push:
-   branches:
-     - dev
+    workflows: ["Publish Artifacts for Quicksight and Athena Views"]
+  push:
+    branches:
+      - dev
 jobs:
   quicksight-deployment:
     runs-on: ubuntu-latest
@@ -18,9 +15,5 @@ jobs:
     steps:
       - name: Print Hello from Pre-Terraform
         run: echo "Hello from pre-tf-steps.yml"
-  quicksight-deployment2:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Print Hello from Pre-Terraform
-        run: echo "Hello from pre-tf-steps.yml2"
+  
+        
