@@ -1,16 +1,12 @@
-# .github/workflows/test-pre-tf-steps.yml
-name: Test Quicksight Deployment
+name: Main Workflow
 
 on:
   workflow_dispatch:
-  
 
 jobs:
-  
-  test-quicksight-deployment:
-    runs-on: ubuntu-latest
-    
-    steps:
-      uses: ./.github/workflows/build.yml
-      - name: Print Debug Message
-        run: echo "Workflow triggered by Test Build Workflow completion."
+  call_workflow1:
+    uses: ./.github/workflows/reusable-workflow1.yml
+
+  call_workflow2:
+    needs: call_workflow1  # Ensures sequential execution
+    uses: ./.github/workflows/reusable-workflow1.yml
