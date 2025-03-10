@@ -2,7 +2,11 @@ name: build.yml
 
 on:
   workflow_call:
-    
+    outputs:
+      result:
+        description: "Output from build workflow"
+        value: ${{ jobs.example.outputs.some_output }}
+
   push:
     branches:
       - dev
@@ -11,8 +15,15 @@ jobs:
   example:
     runs-on: ubuntu-latest
     outputs:
-      some_output: "success"
+      some_output: ${{ steps.set_output.outputs.result }}  # ✅ Fix: Assign output from step
+
     steps:
-      - run: echo "Workflow 1 completed"
+      - name: Run Workflow 1
+        run: echo "Workflow 1 completed"
+
+      - name: Set Output  # ✅ Fix: Correctly set output
+        id: set_output
+        run: echo "result=success" >> $GITHUB_ENV
+
 
       
