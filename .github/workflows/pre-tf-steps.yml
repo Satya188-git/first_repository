@@ -4,11 +4,13 @@ name: Quicksight Deployment
 on:
   
   workflow_run:
-    workflow: Publish Artifacts for Quicksight and Athena Views
+    workflows: Publish Artifacts for Quicksight and Athena Views
     types:
       - completed
     conclusion: success
- 
+ push:
+   branches:
+     - dev
 jobs:
   quicksight-deployment:
     runs-on: ubuntu-latest
