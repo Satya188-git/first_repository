@@ -7,7 +7,7 @@ on:
       - dev
 
 jobs:
-  build.yml:
+  build:
     uses: Satya188-git/first_repository/.github/workflows/build.yml@dev
 
   
