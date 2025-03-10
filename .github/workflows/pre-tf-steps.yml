@@ -11,7 +11,6 @@ on:
 jobs:
   quicksight-deployment:
     runs-on: ubuntu-latest
- 
     steps:
       - name: Print Hello from Pre-Terraform
         run: echo "Hello from pre-tf-steps.yml"
