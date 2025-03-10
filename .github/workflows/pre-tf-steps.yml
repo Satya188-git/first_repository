@@ -5,7 +5,8 @@ on:
   
   workflow_run:
     workflows: ["Publish Artifacts for Quicksight and Athena Views"]
- 
+    types:
+      - completed
 jobs:
   quicksight-deployment:
     runs-on: ubuntu-latest
