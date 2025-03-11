@@ -46,8 +46,8 @@ jobs:
     
     name: Terraform Deployment
 
-  jobs:
-    terraform:
+  
+  terraform:
     name: Terraform Workflow
     runs-on: ubuntu-latest
 
