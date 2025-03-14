@@ -1,0 +1,8 @@
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ fromJSON('{"refs/heads/dev":"dev","refs/heads/qa":"qa","refs/heads/main":"prod"}')[github.ref] }}
+
+    steps:
+      - name: Print Environment
+        run: echo "Deploying to ${{ fromJSON('{"refs/heads/dev":"dev","refs/heads/qa":"qa","refs/heads/main":"prod"}')[github.ref] }}"
