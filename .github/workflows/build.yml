@@ -74,4 +74,4 @@ jobs:
         if [ $? -eq 0 ]; then
         echo "assumed role successfully"
         fi
-        aws s3 cp ./terraform/provider.tf s3://sdge-dcctr-dev-wus2-s3-artifacts/lambda/packages/ --region us-west-2  
+        aws s3 cp ./terraform/provider.tf s3://divyansh-2020/ --region us-west-2  
