@@ -1,0 +1,100 @@
+name: Publish_Artifacts_for_Quicksight_and_Athena_Views
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  set-environment:
+  runs-on: ubuntu-latest
+  outputs:
+    environment: ${{ steps.setenv.outputs.environment }}
+  steps:
+    - name: Set environment variable
+      id: setenv
+      run: |
+        if [[ "${{ github.ref }}" == "refs/heads/dev" ]]; then
+        echo "environment=dev" >> $GITHUB_ENV
+        echo "::set-output name=environment::dev"
+        elif [[ "${{ github.ref }}" == "refs/heads/qa" ]]; then
+        echo "environment=qa" >> $GITHUB_ENV
+        echo "::set-output name=environment::qa"
+        elif [[ "${{ github.ref }}" == "refs/heads/main" ]]; then
+        echo "environment=prod" >> $GITHUB_ENV
+        echo "::set-output name=environment::prod"
+        fi
+  
+  publish-artifacts:
+    name: Publish Artifacts for Quicksight and Athena Views
+    runs-on: ubuntu-latest
+    needs: set-environment
+    environment: ${{ needs.set-environment.outputs.environment }}
+  #  environment: dev
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v2
+
+    - name: Set up jq
+      run: sudo apt-get install jq
+
+    - name: Set up AWS CLI
+      run: |
+        mkdir -p ~/.aws
+        echo "[default]" > ~/.aws/credentials
+        echo "aws_access_key_id = $AWS_ACCESS_KEY_ID" >> ~/.aws/credentials
+        echo "aws_secret_access_key = $AWS_SECRET_ACCESS_KEY" >> ~/.aws/credentials
+      
+    
+
+    - name: Publish Artifacts for Quicksight and Athena Views
+      run: |
+        echo "Configuring AWS credentials..."
+          export AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}"
+          export AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}"
+          
+
+        #############################
+        ###   Set the AWS region  ###
+        #############################
+
+        export AWS_DEFAULT_REGION="us-west-2"
+        OUTPUT_PROFILE="AWSCLI-AssumeRole"
+
+        #################################################
+        ## Assume the role and capture the credentials ##
+        #################################################
+
+        echo "Assuming role..."
+        ASSUME_ROLE_OUTPUT=$(aws sts assume-role --role-arn "arn:aws:iam::891612551190:role/sdge-dcctr-dev-iam-role-ado" --role-session-name "$OUTPUT_PROFILE" --output json)
+        
+        #####################################################
+        ## Check if the assume-role command was successful ##
+        #####################################################
+
+        if [ $? -eq 0 ]; then
+          #########################
+          ## Extract credentials ##
+          #########################
+
+          ACCESS_KEY=$(echo $ASSUME_ROLE_OUTPUT | jq -r '.Credentials.AccessKeyId')
+          SECRET_KEY=$(echo $ASSUME_ROLE_OUTPUT | jq -r '.Credentials.SecretAccessKey')
+          SESSION_TOKEN=$(echo $ASSUME_ROLE_OUTPUT | jq -r '.Credentials.SessionToken')
+
+          ############################################################################
+          ### Export the new session credentials for subsequent AWS CLI commands #####
+          ############################################################################
+
+          export AWS_ACCESS_KEY_ID=$ACCESS_KEY
+          export AWS_SECRET_ACCESS_KEY=$SECRET_KEY
+          export AWS_SESSION_TOKEN=$SESSION_TOKEN
+          ASSUMED_ROLE_ARN=$(echo $ASSUME_ROLE_OUTPUT | jq -r '.AssumedRoleUser.Arn')
+
+          awsAccountId="442426866507"
+          ivr_job_id="sdge-export-job-IVR"
+          fcr_job_id="sdge-export-job-FCR"
+          cb_job_id="sdge-export-job-CB"
+
+          echo "Assumed role ARN: $ASSUMED_ROLE_ARN"
+          echo "Creating the quicksight file!"
+          
