@@ -66,7 +66,7 @@ jobs:
         #################################################
 
         echo "Assuming role..."
-        ASSUME_ROLE_OUTPUT=$(aws sts assume-role --role-arn "arn:aws:iam::891612551190:role/sdge-dcctr-dev-iam-role-ado" --role-session-name "$OUTPUT_PROFILE" --output json)
+        ASSUME_ROLE_OUTPUT=$(aws sts assume-role --role-arn "arn:aws:iam::${{ secrets.AWS_ACCOUNT }}:role/sdge-dcctr-${{ secrets.ENVIRONMENT }}-iam-role-ado" --role-session-name "$OUTPUT_PROFILE" --output json)
         
         #####################################################
         ## Check if the assume-role command was successful ##
