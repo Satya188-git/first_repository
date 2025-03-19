@@ -71,30 +71,7 @@ jobs:
         #####################################################
         ## Check if the assume-role command was successful ##
         #####################################################
-
         if [ $? -eq 0 ]; then
-          #########################
-          ## Extract credentials ##
-          #########################
-
-          ACCESS_KEY=$(echo $ASSUME_ROLE_OUTPUT | jq -r '.Credentials.AccessKeyId')
-          SECRET_KEY=$(echo $ASSUME_ROLE_OUTPUT | jq -r '.Credentials.SecretAccessKey')
-          SESSION_TOKEN=$(echo $ASSUME_ROLE_OUTPUT | jq -r '.Credentials.SessionToken')
-
-          ############################################################################
-          ### Export the new session credentials for subsequent AWS CLI commands #####
-          ############################################################################
-
-          export AWS_ACCESS_KEY_ID=$ACCESS_KEY
-          export AWS_SECRET_ACCESS_KEY=$SECRET_KEY
-          export AWS_SESSION_TOKEN=$SESSION_TOKEN
-          ASSUMED_ROLE_ARN=$(echo $ASSUME_ROLE_OUTPUT | jq -r '.AssumedRoleUser.Arn')
-
-          awsAccountId="442426866507"
-          ivr_job_id="sdge-export-job-IVR"
-          fcr_job_id="sdge-export-job-FCR"
-          cb_job_id="sdge-export-job-CB"
-
-          echo "Assumed role ARN: $ASSUMED_ROLE_ARN"
-          echo "Creating the quicksight file!"
+        echo "assumed role successfully"
+        fi
           
