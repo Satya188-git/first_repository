@@ -2,11 +2,7 @@ name: Lambda Deployment
 
 on:
   workflow_call:  # Enables this workflow to be called from another workflow
-    secrets: 
-      AWS_ACCESS_KEY_ID:
-      AWS_SECRET_ACCESS_KEY:
-      
-       required: true
+    
 
     inputs:
       environment:
@@ -43,6 +39,13 @@ on:
         type: string
         default: "lambda-audit-call"
 
+    secrets: 
+      AWS_ACCESS_KEY_ID:
+        required: true
+      AWS_SECRET_ACCESS_KEY:
+      
+        required: true    
+
 jobs:
   deploy-lambda:
     runs-on: ubuntu-latest
@@ -63,6 +66,24 @@ jobs:
             echo "[default]" > ~/.aws/credentials
             echo "aws_access_key_id = $AWS_ACCESS_KEY_ID" >> ~/.aws/credentials
             echo "aws_secret_access_key = $AWS_SECRET_ACCESS_KEY" >> ~/.aws/credentials
+
+      - name: Set up AWS Credentials
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_REGION: ${{ inputs.awsRegionCode }}
+        run: |
+          echo "Configuring AWS credentials..."
+          aws sts get-caller-identity       
+
+      - name: Debug AWS Credentials
+        run: |
+          if [ -z "$AWS_ACCESS_KEY_ID" ]; then
+            echo "AWS_ACCESS_KEY_ID is not set!"
+            exit 1
+          else
+            echo "AWS_ACCESS_KEY_ID is set."
+          fi           
             
 
       - name: Assume Role and Deploy Lambda

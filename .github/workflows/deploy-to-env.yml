@@ -33,6 +33,9 @@ jobs:
   call-lambda-deployment:
     needs: deploy
     uses: ./.github/workflows/lambda-deployment.yml
+    secrets: 
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     with:
       environment: ${{ github.event.inputs.environment || 'dev' }}
       awsRegionCode: 'us-west-2'
@@ -41,6 +44,4 @@ jobs:
       s3ArtifactBucketFolder: 'pipeline-artifact'
       s3LambdaObjectKey1: 'ccc_audit_call_lambda.zip'
       lambdaFunctionName1: 'lambda-audit-call'
-    secrets: 
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    
