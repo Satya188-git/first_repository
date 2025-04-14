@@ -2,11 +2,11 @@ name: Lambda Deployment
 
 on:
   workflow_call:  # Enables this workflow to be called from another workflow
-    secrets: 
-      AWS_ACCESS_KEY_ID:
-      AWS_SECRET_ACCESS_KEY:
+    # secrets: 
+    #   AWS_ACCESS_KEY_ID:
+    #   AWS_SECRET_ACCESS_KEY:
       
-       required: true
+    #    required: true
 
     inputs:
       environment:
