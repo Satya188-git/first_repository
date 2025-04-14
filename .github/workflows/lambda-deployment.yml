@@ -40,34 +40,40 @@ on:
 jobs:
   deploy-lambda:
     runs-on: ubuntu-latest
-    environment: dev
+    environment: ${{ inputs.environment }}
+
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Deploy to AWS Lambda
-        #run: echo "Deploying Lambda to ${{ inputs.environment }}"
-        run: echo "Deploying Lambda to dev"
- 
-      # - name: Configure AWS Credentials
-      #   uses: aws-actions/configure-aws-credentials@v2
-      #   with:
-      #     aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      #     aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      #     aws-region: us-west-2 # Change if needed  
-      
-    
-      - name: Set up jq
-        run: sudo apt-get install jq
-    
-      - name: Set up AWS CLI
+      - name: Set up AWS CLI and jq
         run: |
-          mkdir -p ~/.aws
-          echo "[default]" > ~/.aws/credentials
-          echo "aws_access_key_id = $AWS_ACCESS_KEY_ID" >> ~/.aws/credentials
-          echo "aws_secret_access_key = $AWS_SECRET_ACCESS_KEY" >> ~/.aws/credentials
-          
-        
+          sudo apt-get update
+          sudo apt-get install -y jq awscli
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ inputs.awsRegionCode }}
+
+      - name: Assume Role and Deploy Lambda
+        env:
+          ROLE_ARN: arn:aws:iam::891612551190:role/sdge-dcctr-${{ inputs.environment }}-iam-role-ado
+        run: |
+          echo "Assuming role for environment: ${{ inputs.environment }}"
+          ASSUME_ROLE=$(aws sts assume-role \
+            --role-arn "$ROLE_ARN" \
+            --role-session-name "GitHubActionsSession" \
+            --output json)
+
+          export AWS_ACCESS_KEY_ID=$(echo $ASSUME_ROLE | jq -r '.Credentials.AccessKeyId')
+          export AWS_SECRET_ACCESS_KEY=$(echo $ASSUME_ROLE | jq -r '.Credentials.SecretAccessKey')
+          export AWS_SESSION_TOKEN=$(echo $ASSUME_ROLE | jq -r '.Credentials.SessionToken')
+          export AWS_DEFAULT_REGION=${{ inputs.awsRegionCode }}
+
+          echo "Deploying Lambda function: ${{ inputs.lambdaFunctionName1 }}"
     
       - name: Publish Artifacts for Quicksight and Athena Views
         run: |
