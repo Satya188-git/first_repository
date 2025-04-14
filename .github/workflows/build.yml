@@ -1,4 +1,4 @@
-name: Publish_Artifacts_for_Quicksight_and_Athena_Views
+name: Publish_Artifacts_for_Quicksight_and_Athena_View
 on:
   push:
     branches:
