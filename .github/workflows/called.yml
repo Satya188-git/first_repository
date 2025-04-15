@@ -30,7 +30,15 @@ on:
       lambdaFunctionName1: 
         required: true
         type: string
-        default: "lambda-audit-call"  
+        default: "lambda-audit-call" 
+      organization:
+        required: true
+        type: string
+        default: "sdge"   
+      applicationcode:
+        required: true
+        type: string
+        default: "dmeti"  
     secrets:
       AWS_ACCESS_KEY_ID:
         required: true
@@ -85,4 +93,10 @@ jobs:
               #####################################################
             if [ $? -eq 0 ]; then
             echo "assumed role successfully"
-            fi    
+            fi  
+            
+            aws lambda create-function \
+            --function-name "${{ inputs.organization }}-${{ inputs.applicationCode }}-${{ inputs.environment }}-${{ inputs.awsRegionAbbreviation }}-lambdaFunctionName1" \
+            --s3-bucket "${{ inputs.organization }}-${{ inputs.applicationCode }}-${{ inputs.environment }}-${{ inputs.awsRegionAbbreviation }}-${{ inputs.s3ArtifactBucketSuffix }}" \
+            --s3-key "${{ inputs.s3ArtifactBucketFolder }}/lambdaFunctionName1.zip" \
+            --region "${{ inputs.awsRegionCode }}"      
