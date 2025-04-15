@@ -34,7 +34,7 @@ on:
       organization:
         required: true
         type: string
-        default: "sdge"   
+        default: "socal"   
       applicationcode:
         required: true
         type: string

@@ -22,4 +22,5 @@ jobs:
       s3ArtifactBucketFolder: 'pipeline-artifact'
       s3LambdaObjectKey1: 'ccc_audit_call_lambda.zip'
       lambdaFunctionName1: 'lambda-audit-call'
-    
+      organisation: 'socal'
+      applicationcode: 'dmeti'
