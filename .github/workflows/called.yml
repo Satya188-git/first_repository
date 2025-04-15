@@ -74,45 +74,32 @@ jobs:
 
       - name: Publish Artifacts for Quicksight and Athena Views
         run: |
-            echo "Configuring AWS credentials..."
-            export AWS_ACCESS_KEY_ID="${{ secrets.AWS_ACCESS_KEY_ID }}"
-            export AWS_SECRET_ACCESS_KEY="${{ secrets.AWS_SECRET_ACCESS_KEY }}"
-                
-      
-              #############################
-              ###   Set the AWS region  ###
-              #############################
-      
-            export AWS_DEFAULT_REGION="us-west-2"
-            OUTPUT_PROFILE="AWSCLI-AssumeRole"
-      
-              #################################################
-              ## Assume the role and capture the credentials ##
-              #################################################
-      
-            echo "Assuming role..."
-            ASSUME_ROLE_OUTPUT=$(aws sts assume-role --role-arn "arn:aws:iam::891612551190:role/sdge-dcctr-dev-iam-role-ado" --role-session-name "$OUTPUT_PROFILE" --output json)
-              
-              #####################################################
-              ## Check if the assume-role command was successful ##
-              #####################################################
-            if [ $? -eq 0 ]; then
-            echo "assumed role successfully"
-            fi  
-            # Parse and export temporary credentials
-            export AWS_ACCESS_KEY_ID=$(echo $ASSUME_ROLE_OUTPUT | jq -r '.Credentials.AccessKeyId')
-            export AWS_SECRET_ACCESS_KEY=$(echo $ASSUME_ROLE_OUTPUT | jq -r '.Credentials.SecretAccessKey')
-            export AWS_SESSION_TOKEN=$(echo $ASSUME_ROLE_OUTPUT | jq -r '.Credentials.SessionToken')
-      - name: Configure aws credentials
-        uses: aws-actions/configure-aws-credentials@010d0da01d0b5a38af31e9c3470dbfdabdecca3a
-        with:
-          role-to-assume: ${{ inputs.aws_assume_role }}
-          role-session-name: gha-lambda_deploy
-          aws-region: us-west-2  
-      - name: Deploy Latest Version of Code
-        run: |        
-            aws lambda create-function \
-            --function-name "${{ inputs.organization }}-${{ inputs.applicationCode }}-${{ inputs.environment }}-${{ inputs.awsRegionAbbreviation }}-lambdaFunctionName1" \
-            --s3-bucket "${{ inputs.organization }}-${{ inputs.applicationCode }}-${{ inputs.environment }}-${{ inputs.awsRegionAbbreviation }}-${{ inputs.s3ArtifactBucketSuffix }}" \
-            --s3-key "${{ inputs.s3ArtifactBucketFolder }}/lambdaFunctionName1.zip" \
-            --region "${{ inputs.awsRegionCode }}"      
+          export AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }}
+          export AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          # export AWS_ACCOUNT=${{ secrets.AWS_ACCOUNT }}
+          # export ENVIRONMENT=${{ secrets.ENVIRONMENT }}
+          export AWS_DEFAULT_REGION="us-west-2"
+          OUTPUT_PROFILE="AWSCLI-AssumeRole"
+          
+          echo "Assuming AWS role..."
+          #ASSUME_ROLE_OUTPUT=$(aws sts assume-role --role-arn "arn:aws:iam::442426866507:role/fondo/sdge-dcctr-dev-iam-role-tfc" --role-session-name "GitHubSession" --output json) || exit 1
+          ASSUME_ROLE_OUTPUT=$(aws sts assume-role --role-arn "arn:aws:iam::891612551190:role/sdge-dcctr-dev-iam-role-ado" --role-session-name "$OUTPUT_PROFILE" --output json)    
+          ACCESS_KEY=$(echo "$ASSUME_ROLE_OUTPUT" | jq -r '.Credentials.AccessKeyId')
+          SECRET_KEY=$(echo "$ASSUME_ROLE_OUTPUT" | jq -r '.Credentials.SecretAccessKey')
+          SESSION_TOKEN=$(echo "$ASSUME_ROLE_OUTPUT" | jq -r '.Credentials.SessionToken')
+
+          if [[ -z "$ACCESS_KEY" || -z "$SECRET_KEY" || -z "$SESSION_TOKEN" ]]; then
+          echo "Failed to assume role. Exiting."
+          exit 1
+          fi
+
+          export AWS_ACCESS_KEY_ID=$ACCESS_KEY
+          export AWS_SECRET_ACCESS_KEY=$SECRET_KEY
+          export AWS_SESSION_TOKEN=$SESSION_TOKEN
+
+          echo "Role assumed successfully!"
+          aws lambda create-function \
+          --function-name "${{ inputs.organization }}-${{ inputs.applicationCode }}-${{ inputs.environment }}-${{ inputs.awsRegionAbbreviation }}-lambdaFunctionName1" \
+          --s3-bucket "${{ inputs.organization }}-${{ inputs.applicationCode }}-${{ inputs.environment }}-${{ inputs.awsRegionAbbreviation }}-${{ inputs.s3ArtifactBucketSuffix }}" \
+          --s3-key "${{ inputs.s3ArtifactBucketFolder }}/lambdaFunctionName1.zip" \
+          --region "${{ inputs.awsRegionCode }}"      
