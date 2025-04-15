@@ -98,7 +98,7 @@ jobs:
           export AWS_SESSION_TOKEN=$SESSION_TOKEN
 
           echo "Role assumed successfully!"
-          aws lambda create-function \
+          aws lambda update-function-code \
           --function-name "${{ inputs.organization }}-${{ inputs.applicationCode }}-${{ inputs.environment }}-${{ inputs.awsRegionAbbreviation }}-lambdaFunctionName1" \
           --s3-bucket "${{ inputs.organization }}-${{ inputs.applicationCode }}-${{ inputs.environment }}-${{ inputs.awsRegionAbbreviation }}-${{ inputs.s3ArtifactBucketSuffix }}" \
           --s3-key "${{ inputs.s3ArtifactBucketFolder }}/lambdaFunctionName1.zip" \
