@@ -100,7 +100,7 @@ jobs:
           echo "Role assumed successfully"
           echo "update code"
           aws lambda update-function-code \
-          --function-name "${{ inputs.organization }}-${{ inputs.applicationCode }}-${{ inputs.environment }}-${{ inputs.awsRegionAbbreviation }}-lambdaFunctionName1" \
+          --function-name "${{ inputs.organization }}-${{ inputs.applicationCode }}-${{ inputs.environment }}-${{ inputs.awsRegionAbbreviation }}-${{ lambdaFunctionName1 }}" \
           --s3-bucket "${{ inputs.organization }}-${{ inputs.applicationCode }}-${{ inputs.environment }}-${{ inputs.awsRegionAbbreviation }}-${{ inputs.s3ArtifactBucketSuffix }}" \
-          --s3-key "${{ inputs.s3ArtifactBucketFolder }}/lambdaFunctionName1.zip" \
+          --s3-key "${{ inputs.s3ArtifactBucketFolder }}/${{ inputs.s3LambdaObjectKey1 }}" \
           --region "${{ inputs.awsRegionCode }}"      
