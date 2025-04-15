@@ -24,3 +24,4 @@ jobs:
       lambdaFunctionName1: 'lambda-audit-call'
       organization: 'socal'
       applicationcode: 'dmeti'
+      aws_assume_role: 'arn:aws:iam::891612551190:role/sdge-dcctr-dev-iam-role-ado'
