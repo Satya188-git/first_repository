@@ -97,7 +97,8 @@ jobs:
           export AWS_SECRET_ACCESS_KEY=$SECRET_KEY
           export AWS_SESSION_TOKEN=$SESSION_TOKEN
 
-          echo "Role assumed successfully!"
+          echo "Role assumed successfully"
+          echo "update code"
           aws lambda update-function-code \
           --function-name "${{ inputs.organization }}-${{ inputs.applicationCode }}-${{ inputs.environment }}-${{ inputs.awsRegionAbbreviation }}-lambdaFunctionName1" \
           --s3-bucket "${{ inputs.organization }}-${{ inputs.applicationCode }}-${{ inputs.environment }}-${{ inputs.awsRegionAbbreviation }}-${{ inputs.s3ArtifactBucketSuffix }}" \
