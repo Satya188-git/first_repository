@@ -1,6 +1,6 @@
 # .github/workflows/build.yml
 name: Publish Artifacts for Quicksight and Athena Views
-on:
+#on:
 
   # pull_request:
   #   branches:
@@ -8,12 +8,23 @@ on:
       
 #  push:
 #    branches:
-  workflow_dispatch:     
-    inputs:
-      environment:
-        description: GitHub Environment where Job Will Run
-        required: true
-        type: string
+  # workflow_dispatch:     
+  #   inputs:
+  #     environment:
+  #       description: GitHub Environment where Job Will Run
+  #       required: true
+  #       type: string
+  on:
+    workflow_dispatch:
+      inputs:
+        environment:
+          description: 'Select the target environment'
+          required: true
+          type: choice
+          options:
+            - dev
+            - qa
+            - production
       
 jobs:
   publish-artifacts_dev:
