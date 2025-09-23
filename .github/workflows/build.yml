@@ -11,15 +11,17 @@ name: Publish Artifacts for Quicksight and Athena Views
 on:
   workflow_dispatch:
     inputs:
-      environment:
-        description: 'Select the target environment'
-        required: true
-        type: choice
-        options:
-          - dev
-          - qa
-          - production
-      
+      deploy_to_dev:
+        description: 'Deploy to Development environment?'
+        required: false
+        type: boolean
+        default: false
+      deploy_to_qa:
+        description: 'Deploy to Staging environment?'
+        required: false
+        type: boolean
+        default: false
+          
 jobs:
   publish-artifacts_dev:
     if: ${{ github.event.inputs.environment == 'dev' }}
