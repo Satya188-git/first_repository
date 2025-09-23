@@ -17,14 +17,14 @@ on:
         type: boolean
         default: false
       deploy_to_qa:
-        description: 'Deploy to Staging environment?'
+        description: 'Deploy to qa environment?'
         required: false
         type: boolean
         default: false
           
 jobs:
   publish-artifacts_dev:
-    if: ${{ github.event.inputs.environment == 'dev' }}
+    if: ${{ github.event.inputs.deploy_to_dev == 'true' }}
     name: Publish Artifacts for Quicksight and Athena Views
     runs-on: ubuntu-latest
     steps:
@@ -32,7 +32,7 @@ jobs:
         run: echo "dev:Hello from build.yml"
 
   publish-artifacts_qa:
-    if: ${{ github.event.inputs.environment == 'qa' }}  
+    if: ${{ github.event.inputs.deploy_to_qa == 'true' }}  
     name: Publish Artifacts for Quicksight and Athena Views
     runs-on: ubuntu-latest  
     steps:
