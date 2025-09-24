@@ -3,6 +3,7 @@ on:
   workflow_call:
 jobs:
    publish-artifacts_qa:
+      if:  github.event.inputs.deploy_to_qa == 'true'
       name: Publish Artifacts for Quicksight and Athena Views
       runs-on: ubuntu-latest
       steps:
