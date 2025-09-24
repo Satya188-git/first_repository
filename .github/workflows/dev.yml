@@ -3,18 +3,20 @@ on:
   workflow_call:
 
 jobs:
-    publish-artifacts_dev:
-      if: github.event.inputs.deploy_to_dev == 'true'  
-      name: Publish Artifacts for Quicksight and Athena Views
-      runs-on: ubuntu-latest
-      steps:
-        - name: Print Hello from dev.yml
-          run: echo "dev:Hello from dev.yml"  
+  publish-artifacts_dev:
+    
+    name: Publish Artifacts for Quicksight and Athena Views
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print Hello from Build
+        if: ${{ github.event.inputs.deploy_to_dev == 'true' }}
+        run: echo "dev:Hello from build.yml" 
 
-    publish-artifacts_qa:
-      if:  github.event.inputs.deploy_to_qa == 'true'
-      name: Publish Artifacts for Quicksight and Athena Views
-      runs-on: ubuntu-latest
-      steps:
-        - name: Print Hello from qa.yml
-          run: echo "qa:Hello from qa.yml"      
+      - name: Print Hello from qa
+        if: ${{ github.event.inputs.deploy_to_qa == 'true' }}
+        run: echo "qa:Hello from qa.yml"  
+      
+       
+          
+
+          
