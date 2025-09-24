@@ -1,0 +1,11 @@
+name: dev
+on:
+  workflow_call:
+
+jobs:
+   publish-artifacts_dev:
+      name: Publish Artifacts for Quicksight and Athena Views
+      runs-on: ubuntu-latest
+      steps:
+        - name: Print Hello from dev.yml
+          run: echo "dev:Hello from dev.yml"  

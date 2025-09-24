@@ -1,0 +1,10 @@
+name: qa
+on:
+  workflow_call:
+jobs:
+   publish-artifacts_qa:
+      name: Publish Artifacts for Quicksight and Athena Views
+      runs-on: ubuntu-latest
+      steps:
+        - name: Print Hello from qa.yml
+          run: echo "qa:Hello from qa.yml"

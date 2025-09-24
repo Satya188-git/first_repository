@@ -33,21 +33,25 @@ on:
     types: [published]       
           
 jobs:
+  # publish-artifacts_dev:
+  #   if: ${{ github.event.inputs.deploy_to_dev == 'true' }}
+  #   name: Publish Artifacts for Quicksight and Athena Views
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Print Hello from Build
+  #       run: echo "dev:Hello from build.yml"
+
   publish-artifacts_dev:
-    if: ${{ github.event.inputs.deploy_to_dev == 'true' }}
-    name: Publish Artifacts for Quicksight and Athena Views
-    runs-on: ubuntu-latest
-    steps:
-      - name: Print Hello from Build
-        run: echo "dev:Hello from build.yml"
+    uses: ./.github/workflows/dev.yml
 
   publish-artifacts_qa:
-    if: ${{ github.event.inputs.deploy_to_qa == 'true' }}  
-    name: Publish Artifacts for Quicksight and Athena Views
-    runs-on: ubuntu-latest  
-    steps:
-      - name: Print Hello from Build
-        run: echo "qa:Hello from build.yml"
+    uses: ./.github/workflows/qa.yml
+    # if: ${{ github.event.inputs.deploy_to_qa == 'true' }}  
+    # name: Publish Artifacts for Quicksight and Athena Views
+    # runs-on: ubuntu-latest  
+    # steps:
+    #   - name: Print Hello from Build
+    #     run: echo "qa:Hello from build.yml"
   publish-artifacts_prod:
     if: ${{ (github.event.inputs.deploy_to_prod == 'true' && github.ref == 'refs/heads/main')  || (github.event_name == 'release' && github.event.action == 'published') }}
     name: Publish Artifacts for Quicksight and Athena Views
