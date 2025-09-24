@@ -1,0 +1,62 @@
+# .github/workflows/build.yml
+name: Publish Artifacts for Quicksight and Athena Views
+
+
+  # workflow_dispatch:     
+  #   inputs:
+  #     environment:
+  #       description: GitHub Environment where Job Will Run
+  #       required: true
+  #       type: string
+on:
+  workflow_dispatch:
+    inputs:
+      deploy_to_dev:
+        description: 'Deploy to Development environment?'
+        required: false
+        type: boolean
+        default: false
+      deploy_to_qa:
+        description: 'Deploy to qa environment?'
+        required: false
+        type: boolean
+        default: false
+
+      deploy_to_prod:
+        description: 'Deploy to Production environment?'
+        required: false
+        type: boolean
+        default: false  
+
+  
+  release:
+    types: [published]       
+          
+jobs:
+  publish-artifacts_dev:
+    if: ${{ github.event.inputs.deploy_to_dev == 'true' }}
+    name: Publish Artifacts for Quicksight and Athena Views
+    runs-on: ubuntu-latest
+    steps:
+      - name: Print Hello from Build
+        run: echo "dev:Hello from build.yml"
+
+  # publish-artifacts_dev:
+  #   uses: ./.github/workflows/dev.yml
+
+  publish-artifacts_qa:
+    #uses: ./.github/workflows/qa.yml
+    if: ${{ github.event.inputs.deploy_to_qa == 'true' }}  
+    name: Publish Artifacts for Quicksight and Athena Views
+    runs-on: ubuntu-latest  
+    steps:
+      - name: Print Hello from Build
+        run: echo "qa:Hello from build.yml"
+  publish-artifacts_prod:
+    if: ${{ (github.event.inputs.deploy_to_prod == 'true' && github.ref == 'refs/heads/main')  || (github.event_name == 'release' && github.event.action == 'published') }}
+    name: Publish Artifacts for Quicksight and Athena Views
+    runs-on: ubuntu-latest  
+    steps:
+      - name: Print Hello from Build
+        run: echo "prod:Hello from build.yml"
+      
