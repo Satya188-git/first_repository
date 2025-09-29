@@ -70,6 +70,7 @@ jobs:
     #     run: echo "qa:Hello from build.yml"
   publish-artifacts_prod:
     if: ${{ (github.event.inputs.deploy_to_prod == 'true' && github.ref == 'refs/heads/main')  || (github.event_name == 'release' && github.event.action == 'published') }}
+    needs: publish-artifacts_qa
     name: Publish Artifacts for Quicksight and Athena Views
     runs-on: ubuntu-latest  
     steps:
